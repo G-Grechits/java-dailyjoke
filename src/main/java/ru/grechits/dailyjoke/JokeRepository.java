@@ -11,5 +11,7 @@ public interface JokeRepository extends JpaRepository<Joke, Long> {
 
     Optional<Joke> findByIdAndStatus(long id, Status status);
 
+    List<Joke> findAllByStatus(Status status);
+
     List<Joke> findAllByCreatedBetweenAndStatus(LocalDateTime start, LocalDateTime end, Status status, Pageable pageable);
 }

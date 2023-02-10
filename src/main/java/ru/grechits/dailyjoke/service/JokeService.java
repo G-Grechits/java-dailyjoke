@@ -8,6 +8,10 @@ public interface JokeService {
 
     JokeDto getRandom();
 
+    JokeDto getRandomUsingShuffle();
+
+    JokeDto getRandomUsingRecursion();
+
     JokeDto getById(long id);
 
     List<JokeDto> getByParams(String start, String end, String status, int from, int size);

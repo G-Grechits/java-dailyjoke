@@ -13,6 +13,7 @@ import ru.grechits.dailyjoke.exception.ValidationException;
 import ru.grechits.dailyjoke.mapper.JokeMapper;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.SplittableRandom;
@@ -26,11 +27,31 @@ import static ru.grechits.dailyjoke.mapper.JokeMapper.toJokeDto;
 @RequiredArgsConstructor
 public class JokeServiceImpl implements JokeService {
     private final JokeRepository repository;
+    private final SplittableRandom random;
 
+    //The three methods below perform the same function - they find a random joke, but they do it in different ways.
     @Override
     public JokeDto getRandom() {
+        List<Long> publishedJokesIds = getPublishedJokesIds();
+        int randomIndex = random.nextInt(0, publishedJokesIds.size());
+        long id = publishedJokesIds.get(randomIndex);
+        Joke joke = getJokeFromRepository(id);
+
+        return toJokeDto(joke);
+    }
+
+    @Override
+    public JokeDto getRandomUsingShuffle() {
+        List<Long> publishedJokesIds = getPublishedJokesIds();
+        Collections.shuffle(publishedJokesIds);
+        Joke joke = getJokeFromRepository(publishedJokesIds.get(0));
+
+        return toJokeDto(joke);
+    }
+
+    @Override
+    public JokeDto getRandomUsingRecursion() {
         long jokesQuantity = repository.count();
-        SplittableRandom random = new SplittableRandom();
         long randomId = random.nextLong(1, jokesQuantity);
         long id = getCorrectRandomId(randomId, jokesQuantity, random);
         Joke joke = getJokeFromRepository(id);
@@ -89,6 +110,12 @@ public class JokeServiceImpl implements JokeService {
     public void delete(long id) {
         getJokeFromRepository(id);
         repository.deleteById(id);
+    }
+
+    private List<Long> getPublishedJokesIds() {
+        return repository.findAllByStatus(Status.PUBLISHED).stream()
+                .map(Joke::getId)
+                .collect(Collectors.toList());
     }
 
     private long getCorrectRandomId(long id, long jokesQuantity, SplittableRandom random) {

@@ -17,7 +17,7 @@ public class UserJokeController {
 
     @GetMapping("/jokes")
     public JokeDto getRandomJoke() {
-        JokeDto joke = service.getRandom();
+        JokeDto joke = service.getRandomUsingRecursion();
         log.info("A GET request was made at /users/jokes");
 
         return joke;
